@@ -15,9 +15,23 @@ Launch a Linux container with our `cloud-init.yaml` file based on the latest
 Ubuntu LTS:
 
 ```sh
-lxc launch ubuntu:22.04 faasd --config=user.user-data="$(cat cloud-init.yaml)"
+lxc launch ubuntu:22.04 faasd \
+    --config=user.user-data="$(cat cloud-init.yaml)" \
+    --config=security.nesting=true \
+    --config=security.syscalls.intercept.mknod=true \
+    --config=security.syscalls.intercept.setxattr=true
 ```
 
+> **Note**
+>
+> Following configuration options allow us to do nesting (container in a container):
+>
+> ```sh
+> --config=security.nesting=true --config=security.syscalls.intercept.mknod=true --config=security.syscalls.intercept.setxattr=true
+> ```
+>
+> ---
+>
 > **Note**
 >
 > The file `cloud-init.yaml` includes a `ssh_import_id` statement that contains

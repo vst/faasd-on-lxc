@@ -1,0 +1,31 @@
+#cloud-config
+
+## Setup users:
+users:
+  - name: "patron"
+    groups:
+      - "sudo"
+    sudo: "ALL=(ALL) NOPASSWD:ALL"
+    ssh_import_id:
+      - "gh:vst"
+    lock_passwd: true
+
+## Update package index:
+package_update: true
+
+## Upgrade packages:
+package_upgrade: true
+
+## Reboot if required:
+package_reboot_if_required: true
+
+## Run commands:
+runcmd:
+  - curl -sfL https://raw.githubusercontent.com/openfaas/faasd/master/hack/install.sh | bash -s -
+  - systemctl status -l containerd --no-pager
+  - systemctl status -l faasd-provider --no-pager
+  - systemctl status -l faasd --no-pager
+  - sleep 60
+  - journalctl -u faasd-provider --no-pager
+  - journalctl -u faasd --no-pager
+  - cat /var/lib/faasd/secrets/basic-auth-password | /usr/local/bin/faas-cli login --password-stdin
